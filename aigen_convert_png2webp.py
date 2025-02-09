@@ -9,6 +9,7 @@ def convert_png_to_webp(directory, quality=95):
         return
     
     base_output_dir = os.path.join(directory, "converted")
+    total_converted = 0
     
     for root, _, files in os.walk(directory):
         relative_path = os.path.relpath(root, directory)
@@ -30,11 +31,15 @@ def convert_png_to_webp(directory, quality=95):
                         exif_bytes = piexif.dump(exif_dict)
                         
                         img.save(webp_path, "WEBP", exif=exif_bytes, quality=quality)
+                        # Preserve timestamps
+                        stat_info = os.stat(png_path)
+                        os.utime(webp_path, (stat_info.st_atime, stat_info.st_mtime))
+                        total_converted += 1
                         print(f"Converted: {png_path} -> {webp_path} with quality {quality}")
                 except Exception as e:
                     print(f"Failed to convert {png_path}: {e}")
     
-    print("Conversion completed!")
+    print(f"Conversion completed! Total files converted: {total_converted}")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2 or len(sys.argv) > 3:
