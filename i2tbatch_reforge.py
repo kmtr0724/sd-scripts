@@ -20,12 +20,19 @@ for file in files:
     # Generate image
     #x=float(params["Size-1"])/1.5
     #y=float(params["Size-2"])/1.5
-    hrcfg=float(params["CFG scale"])-1
+    if(float(params["cfg_scale"]) >= 6):
+        hrcfg = float(params["CFG scale"])-1  
+    else:
+        hrcfg = float(params["CFG scale"])  
     #print(params)
     if(float(params["Size-1"]) > 1200):
         hrscale = 2
     else:
         hrscale = 1.5
+
+    
+    
+
 
     payload = {
         "prompt": params["Prompt"],
