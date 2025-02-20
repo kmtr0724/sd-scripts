@@ -20,7 +20,7 @@ for file in files:
     # Generate image
     #x=float(params["Size-1"])/1.5
     #y=float(params["Size-2"])/1.5
-    if(float(params["cfg_scale"]) >= 6):
+    if(float(params["CFG scale"]) >= 6):
         hrcfg = float(params["CFG scale"])-1  
     else:
         hrcfg = float(params["CFG scale"])  
