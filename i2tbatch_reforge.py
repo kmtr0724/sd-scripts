@@ -18,22 +18,23 @@ for file in files:
     response = requests.post(url=f'{url}/sdapi/v1/png-info', json={"image": img})
     params = response.json()["parameters"]
     # Generate image
-    #x=float(params["Size-1"])/1.5
-    #y=float(params["Size-2"])/1.5
     if(float(params["CFG scale"]) >= 6):
         hrcfg = float(params["CFG scale"])-1  
     else:
         hrcfg = float(params["CFG scale"])  
     #print(params)
-    if(float(params["Size-1"]) > 1200):
-        hrscale = 2
+    #if(float(params["Size-1"])*float(params["Size-2"]) < 1382400): #<1280*1080
+    if(float(params["Size-2"]) < 1080): 
+        if(float(params["Size-1"]) <= 1280):
+            hrscale = 2
+            denoising_strength=0.35
+        else:
+            hrscale = 1.8
+            denoising_strength=0.33        
     else:
-        hrscale = 1.5
-
-    
-    
-
-
+        hrscale = 1.75
+        denoising_strength=0.33
+ 
     payload = {
         "prompt": params["Prompt"],
         "negative_prompt": params["Negative prompt"],
@@ -54,19 +55,15 @@ for file in files:
         "batch_size": 1,
         "hr_upscaler": "R-ESRGAN 4x+ Anime6B",    # Upscaler
         "hr_second_pass_steps": 12,  # Hires steps
-        "denoising_strength": 0.38,  # Denoising strength
+        "denoising_strength": denoising_strength,  # Denoising strength
         "tiling" : "false",
         "alwayson_scripts": {
-            "LoRA Block Weight (reForge)": {
-        		"args": ["MYSETS:1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\nYOURSETS:0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1", True, 1 ,"","","","","","","","","","","","","",""]
-	        },
         }
     }
     #print(payload)
 
     response = requests.post(url=f'{url}/sdapi/v1/txt2img', json=payload)
     r = response.json()
-
     # Save image
     with open(os.path.join("output", os.path.basename(file)), 'wb') as f:
         f.write(base64.b64decode(r['images'][0]))
